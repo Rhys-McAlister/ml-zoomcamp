@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -15,3 +14,7 @@ df = fetch_data(url=url)
 sns.histplot(df.median_house_value, bins=50)
 plt.show()
 
+# select 'latitude' and 'longitude' columns
+df = df[['longitude', 'latitude', 'housing_median_age', 'total_rooms',
+       'total_bedrooms', 'population', 'households', 'median_income',
+       'median_house_value']]
