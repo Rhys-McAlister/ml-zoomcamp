@@ -2,7 +2,8 @@ import pandas as pd
 import numpy as np
 from typing import List
 from sklearn.metrics import mutual_info_score
-
+from sklearn.feature_extraction import DictVectorizer
+from sklearn.linear_model import LogisticRegression
 
 def fetch_data(url: str) -> pd.DataFrame:
     df = pd.read_csv(url)
@@ -26,6 +27,30 @@ def data_cleaning_pipeline(df: pd.DataFrame) -> pd.DataFrame:
     df = clean_numerical_columns(df)
     # df = clean_date_columns(df)
     return df
+
+def one_hot_encoding(df: pd.DataFrame, cols_to_transform: List[str]) -> pd.DataFrame:
+    """
+    Function to one-hot encode a dataframe.
+
+    Args:
+        df (pd.DataFrame): dataframe to one-hot encode
+        cols_to_transform (List[str]): list of columns to one-hot encode
+
+    Returns:
+        pd.DataFrame: one-hot encoded dataframe
+    """
+    vec_enc = DictVectorizer(sparse=False)
+    x_train = vec_enc.fit_transform(df[cols_to_transform].to_dict(orient='records'))
+    return x_train, vec_enc
+
+
+def intrepret_model(x_train, y_train, cols_to_transform):
+
+    x_train, vec_enc = one_hot_encoding(x_train, cols_to_transform)
+    model = LogisticRegression()
+    model.fit(x_train, y_train)
+    coefs = dict(zip(vec_enc.get_feature_names(), model.coef_[0].round(3)))
+    return coefs
 
 
 # def calculate_mutual_info(df: pd.DataFrame, target: str, comparsion_columns: list[str]) -> pd.Series:
@@ -165,3 +190,5 @@ def impute_missing_values(df: pd.DataFrame, strategy: str) -> pd.DataFrame:
         return df
     else:
         raise ValueError("strategy must be one of 'median', 'mean', or 'zero'")
+
+
